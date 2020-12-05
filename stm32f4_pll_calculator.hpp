@@ -106,32 +106,34 @@ private:
 	static constexpr uint16_t calc_by_q_loop(Factor type, uint16_t q, uint16_t q_max)
 	{
 		auto res = calc_by_q(type, q);
-		if (res != 0)
+		if (res != 0) 
 			return res;
-		else if (q < q_max)
+		else if (q < q_max) 
 			return calc_by_q_loop(type, q + 1, q_max);
-
 		return 0;
 	}
 
-	template <Factor type>
-	static constexpr uint16_t calc()
+	static constexpr uint16_t calc(Factor type)
 	{
-		constexpr uint16_t result = calc_by_q_loop(type, 2, 15);
-		static_assert(result, "Combination of SysclockFreq, HseFreq and UsbFreq is incorrect");
-		return result;
+		return calc_by_q_loop(type, 2, 15);
 	}
+
 public:
 
 	// Division factor for the main PLL (PLL) input clock
-	static constexpr uint16_t pll_m = calc<Factor::M>();
+	static constexpr uint16_t pll_m = calc(Factor::M);
 
 	// Main PLL (PLL) multiplication factor for VCO
-	static constexpr uint16_t pll_n = calc<Factor::N>();
+	static constexpr uint16_t pll_n = calc(Factor::N);
 
 	// Main PLL (PLL) division factor for main system clock
-	static constexpr uint16_t pll_p = calc<Factor::P>();
+	static constexpr uint16_t pll_p = calc(Factor::P);
 
 	// Main PLL (PLL) division factor for USB OTG FS, and SDIO clocks
-	static constexpr uint16_t pll_q = calc<Factor::Q>();
+	static constexpr uint16_t pll_q = calc(Factor::Q);
+
+	static_assert(
+		pll_m && pll_n && pll_p && pll_q, 
+		"Combination of SysclockFreq, HseFreq and UsbFreq is incorrect"
+	);
 };
