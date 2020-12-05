@@ -9,7 +9,9 @@ template <
 	unsigned MinVcoFreq = 100'000'000,
 	unsigned MaxVcoFreq = 432'000'000,
 	unsigned MinInVcoFreq = 1'000'000,
-	unsigned MaxInVcoFreq = 2'000'000
+	unsigned MaxInVcoFreq = 2'000'000,
+	unsigned MinN = 50,
+	unsigned MaxN = 432
 >
 class stm32f4_pll_calculator
 {
@@ -20,6 +22,8 @@ private:
 	static constexpr uint16_t calc_by_q_m_p()
 	{
 		constexpr unsigned n = (uint64_t)SysclockFreq * (uint64_t)m * (uint64_t)p / (uint64_t)HseFreq;
+		if constexpr (n < MinN) return 0;
+		if constexpr (n > MaxN) return 0;
 
 		constexpr unsigned test_sysfreq = (uint64_t)HseFreq * (uint64_t)n / (m * p);
 		if constexpr (test_sysfreq != SysclockFreq)
@@ -99,7 +103,9 @@ private:
 	template <Type type>
 	static constexpr uint16_t calc()
 	{
-		return calc_by_q_loop<type, 2, 15>();
+		constexpr uint16_t result = calc_by_q_loop<type, 2, 15>();
+		static_assert(result, "Combination of SysclockFreq, HseFreq and UsbFreq is incorrect");
+		return result;
 	}
 
 public:
