@@ -1,5 +1,7 @@
 # Compile-time utilities to calculate PLL-coefficients for STM32 mcu
 
+Requiriments: c++17-compatible compiler
+
 ```cpp
 #include <stdio.h>
 
