@@ -135,8 +135,16 @@ private:
 	}
 
 public:
-	static constexpr uint16_t pll_n = calc<Type::N>();
+
+	// Division factor for the main PLL (PLL) input clock
 	static constexpr uint16_t pll_m = calc<Type::M>();
+
+	// Main PLL (PLL) multiplication factor for VCO
+	static constexpr uint16_t pll_n = calc<Type::N>();
+
+	// Main PLL (PLL) division factor for main system clock
 	static constexpr uint16_t pll_p = calc<Type::P>();
+
+	// Main PLL (PLL) division factor for USB OTG FS, and SDIO clocks
 	static constexpr uint16_t pll_q = calc<Type::Q>();
 };
