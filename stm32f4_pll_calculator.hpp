@@ -44,7 +44,7 @@ class stm32f4_pll_calculator
 private:
 	enum class Factor { N, M, P, Q };
 
-	static constexpr uint16_t calc_by_q_m_p(Factor type, uint16_t q, uint16_t m, uint16_t p)
+	static constexpr uint16_t calc_by_q_m_p(Factor factor, uint16_t q, uint16_t m, uint16_t p)
 	{
 		unsigned n = (uint64_t)SysclockFreq * (uint64_t)m * (uint64_t)p / (uint64_t)HseFreq;
 		if (n < MinN) return 0;
@@ -59,57 +59,57 @@ private:
 			return 0;
 
 		return
-			(type == Factor::N) ? n :
-			(type == Factor::M) ? m :
-			(type == Factor::P) ? p :
-			(type == Factor::Q) ? q :
+			(factor == Factor::N) ? n :
+			(factor == Factor::M) ? m :
+			(factor == Factor::P) ? p :
+			(factor == Factor::Q) ? q :
 			0;
 	}
 
-	static constexpr uint16_t calc_by_q_m(Factor type, uint16_t q, uint16_t m)
+	static constexpr uint16_t calc_by_q_m(Factor factor, uint16_t q, uint16_t m)
 	{
 		unsigned vco_in_freq = HseFreq / m;
 		if (vco_in_freq < MinInVcoFreq) return 0;
 		if (vco_in_freq > MaxInVcoFreq) return 0;
 
-		auto res2 = calc_by_q_m_p(type, q, m, 2);
+		auto res2 = calc_by_q_m_p(factor, q, m, 2);
 		if (res2 != 0) return res2;
 
-		auto res4 = calc_by_q_m_p(type, q, m, 4);
+		auto res4 = calc_by_q_m_p(factor, q, m, 4);
 		if (res4 != 0) return res4;
 
-		auto res6 = calc_by_q_m_p(type, q, m, 6);
+		auto res6 = calc_by_q_m_p(factor, q, m, 6);
 		if (res6 != 0) return res6;
 
-		return calc_by_q_m_p(type, q, m, 8);
+		return calc_by_q_m_p(factor, q, m, 8);
 	}
 
-	static constexpr uint16_t calc_by_q_m_loop(Factor type, uint16_t q, uint16_t m, uint16_t m_max)
+	static constexpr uint16_t calc_by_q_m_loop(Factor factor, uint16_t q, uint16_t m, uint16_t m_max)
 	{
-		auto res = calc_by_q_m(type, q, m);
+		auto res = calc_by_q_m(factor, q, m);
 		if (res != 0)
 			return res;
 		else if (m < m_max)
-			return calc_by_q_m_loop(type, q, m + 1, m_max);
+			return calc_by_q_m_loop(factor, q, m + 1, m_max);
 		return 0;
 	}
 
-	static constexpr uint16_t calc_by_q(Factor type, uint16_t q)
+	static constexpr uint16_t calc_by_q(Factor factor, uint16_t q)
 	{
 		unsigned VcoFreq = UsbFreq * q;
 		if (VcoFreq < MinVcoFreq) return 0;
 		if (VcoFreq > MaxVcoFreq) return 0;
 
-		return calc_by_q_m_loop(type, q, 2, 63);
+		return calc_by_q_m_loop(factor, q, 2, 63);
 	}
 
-	static constexpr uint16_t calc_by_q_loop(Factor type, uint16_t q, uint16_t q_max)
+	static constexpr uint16_t calc_by_q_loop(Factor factor, uint16_t q, uint16_t q_max)
 	{
-		auto res = calc_by_q(type, q);
+		auto res = calc_by_q(factor, q);
 		if (res != 0) 
 			return res;
 		else if (q < q_max) 
-			return calc_by_q_loop(type, q + 1, q_max);
+			return calc_by_q_loop(factor, q + 1, q_max);
 		return 0;
 	}
 
