@@ -15,7 +15,7 @@ int main()
 	using pll_calc = stm32f4_pll_calculator<
 		SysClockFreq,
 		25'000'000, // HSE (external quartz frequency)
-		48'000'000  // UBS clock frequency
+		48'000'000  // USB clock frequency
 	>;
 
 	printf(
